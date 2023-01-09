@@ -1,0 +1,17 @@
+﻿{
+  "name": "com.siegfriedwagner.singletons",
+  "version": "0.1.0",
+  "displayName": "Singleton MonoBehaviours",
+  "description": "Package with various implementations of singleton patter.",
+  "unity": "2021.3",
+  "changelogUrl": "https://github.com/SiegfriedWagner/SingletonMonobehaviour/releases",
+  "licensesUrl": "https://github.com/SiegfriedWagner/SingletonMonobehaviour/blob/master/LICENSE",
+  "keywords": [
+    "singleton"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Mateusz Chojnowski, SiegfriedWagner",
+    "email": "mateus.chojnowski@gmail.com"
+  }
+}

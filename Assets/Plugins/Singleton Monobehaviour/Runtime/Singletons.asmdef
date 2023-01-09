@@ -1,0 +1,14 @@
+{
+    "name": "com.siegfriedwagner.singletons",
+    "rootNamespace": "SiegfriedWagner.Singletons",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
