@@ -3,10 +3,10 @@
 namespace SiegfriedWagner.Singletons.Attributes
 {
 	[AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false)]
-	public class PrefabPathAttribute : Attribute
+	public class InstantiatedFromPrefabAttribute : LazyInstantiatedAttribute
 	{
 		public string PathRelativeToResources { get; }
-		public PrefabPathAttribute(string pathRelativeToResources)
+		public InstantiatedFromPrefabAttribute(string pathRelativeToResources)
 		{
 			PathRelativeToResources = pathRelativeToResources;
 		}

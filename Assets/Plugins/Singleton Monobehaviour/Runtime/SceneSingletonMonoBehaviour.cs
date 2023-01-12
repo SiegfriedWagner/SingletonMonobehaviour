@@ -8,13 +8,47 @@ namespace SiegfriedWagner.Singletons
 {
 	public class SceneSingletonMonoBehaviour<T> : MonoBehaviour where T : SceneSingletonMonoBehaviour<T>
 	{
-		private static Dictionary<Scene, T> _sceneScopedSingletons = new();
+		private static readonly UnitySingletonHelper.ObjectFactory<T> FactoryMethod;
+		private static readonly Dictionary<Scene, T> _sceneScopedSingletons = new();
 		private bool _removeFromDict;
+
+		static SceneSingletonMonoBehaviour()
+		{
+			FactoryMethod = UnitySingletonHelper.ResolveFactoryMethodFor<T>();
+		}
 
 		public static IEnumerable<Scene> InstantiatedSingletonsScenes => _sceneScopedSingletons.Keys;
 
+		private void Awake()
+		{
+			if (_sceneScopedSingletons.TryGetValue(gameObject.scene, out var dictInst) && dictInst != this)
+			{
+				Destroy(this);
+				Debug.LogWarning($"Instance of {typeof(SceneSingletonMonoBehaviour<T>)} already present in the scene");
+			}
+			else
+			{
+				_removeFromDict = true;
+				_sceneScopedSingletons.Add(gameObject.scene, (T)this);
+				InheritorAwake();
+			}
+		}
+
+		private void OnDestroy()
+		{
+			if (_removeFromDict)
+				try
+				{
+					InheritorOnDestroy();
+				}
+				finally
+				{
+					_sceneScopedSingletons.Remove(gameObject.scene);
+				}
+		}
+
 		/// <summary>
-		/// Returns singleton instance related to currently active scene.
+		///     Returns singleton instance related to currently active scene.
 		/// </summary>
 		/// <returns>Singleton instance. Value is never null unless application is closing.</returns>
 		public static T GetActiveSceneInstance()
@@ -23,7 +57,7 @@ namespace SiegfriedWagner.Singletons
 		}
 
 		/// <summary>
-		/// Returns singleton instance related to specific scene. 
+		///     Returns singleton instance related to specific scene.
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <returns>Singleton </returns>
@@ -42,7 +76,7 @@ namespace SiegfriedWagner.Singletons
 					switchScene = true;
 				}
 
-				instance = UnitySingletonHelper.CreateOrFindInstance<T>();
+				instance = FactoryMethod();
 				if (switchScene)
 					SceneManager.SetActiveScene(activeScene);
 				_sceneScopedSingletons.Add(scene, instance);
@@ -56,39 +90,14 @@ namespace SiegfriedWagner.Singletons
 			return _sceneScopedSingletons.ContainsKey(scene);
 		}
 
-		protected virtual void InheritorAwake(bool isImmediatelyDestroyed)
+		protected virtual void InheritorAwake()
 		{
 		}
 
-		protected virtual void InheritorOnDestroy(bool isImmediatelyDestroyed)
+		protected virtual void InheritorOnDestroy()
 		{
 		}
 
-		private void Awake()
-		{
-			if (_sceneScopedSingletons.TryGetValue(gameObject.scene, out var dictInst) && dictInst != this)
-			{
-				Destroy(this);
-				Debug.LogWarning($"Instance of {typeof(SceneSingletonMonoBehaviour<T>)} already present in the scene");
-				InheritorAwake(true);
-			}
-			else
-			{
-				_removeFromDict = true;
-				_sceneScopedSingletons.Add(gameObject.scene, (T)this);
-				InheritorAwake(false);
-			}
-		}
-
-		private void OnDestroy()
-		{
-			if (_removeFromDict)
-			{
-				InheritorAwake(false);
-				_sceneScopedSingletons.Remove(gameObject.scene);
-			}
-			else
-				InheritorAwake(true);
-		}
+		private delegate T ObjectFactory();
 	}
 }
