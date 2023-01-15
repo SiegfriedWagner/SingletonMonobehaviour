@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Reflection;
+using NUnit.Framework;
+using SiegfriedWagner.Singletons.Attributes;
 
 namespace SiegfriedWagner.Singletons.Tests.Runtime
 {

@@ -3,6 +3,7 @@ using System.IO;
 using SiegfriedWagner.Singletons.Attributes;
 using SiegfriedWagner.Singletons.Exceptions;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace SiegfriedWagner.Singletons.Internal
@@ -11,24 +12,24 @@ namespace SiegfriedWagner.Singletons.Internal
 	{
 		public delegate T ObjectFactory<out T>();
 
-		private const string globalSingletionContainerName = "GlobalSingletons";
-		private static GameObject globalSingletonContainer;
-		private static GameObject sceneSingletonContainer;
+		private const string GlobalSingletonContainerName = "GlobalSingletons";
+		private static GameObject _globalSingletonContainer;
+		private static GameObject _sceneSingletonContainer;
 
 		/// <summary>
 		///     Singleton container that is not destroyed on scene change
 		/// </summary>
-		internal static GameObject GlobalSingletonsContainer
+		public static GameObject GlobalSingletonsContainer
 		{
 			get
 			{
-				if (globalSingletonContainer == null)
+				if (_globalSingletonContainer == null)
 				{
-					globalSingletonContainer = new GameObject(globalSingletionContainerName);
-					Object.DontDestroyOnLoad(globalSingletonContainer);
+					_globalSingletonContainer = new GameObject(GlobalSingletonContainerName);
+					Object.DontDestroyOnLoad(_globalSingletonContainer);
 				}
 
-				return globalSingletonContainer;
+				return _globalSingletonContainer;
 			}
 		}
 
@@ -50,6 +51,20 @@ namespace SiegfriedWagner.Singletons.Internal
 				}
 
 			return returnedValue;
+		}
+
+		public static void ValidateSingleton<T>() where T : MonoBehaviour
+		{
+			if (Application.isPlaying)
+				return;
+			var siblings = Object.FindObjectsOfType<T>();
+			if (siblings.Length > 1)
+				Debug.LogError($"More than one instance of {typeof(T)} opened in scene: {SceneManager.GetActiveScene().path}");
+			if (Attribute.GetCustomAttribute(typeof(T), typeof(InstantiatedFromPrefabAttribute)) is
+			    InstantiatedFromPrefabAttribute prefabAttribute)
+			{
+
+			}
 		}
 
 		public static T FindInstance<T>() where T : MonoBehaviour

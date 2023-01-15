@@ -3,38 +3,26 @@ using UnityEngine;
 
 namespace SiegfriedWagner.Singletons
 {
+	/// <summary>
+	///     A singleton inheriting from MonoBehaviour.
+	/// </summary>
+	/// <typeparam name="T">Class type.</typeparam>
 	public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBehaviour<T>
 	{
 		private static readonly UnitySingletonHelper.ObjectFactory<T> FactoryMethod;
+
+		private static T _instance;
 
 		static SingletonMonoBehaviour()
 		{
 			FactoryMethod = UnitySingletonHelper.ResolveFactoryMethodFor<T>();
 		}
 
-		private static T _instance;
-
 		/// <summary>
 		///     Returns true if singleton instance is present in scene
 		/// </summary>
 		// ReSharper disable once StaticMemberInGenericType - it's fine, one static field per singleton an intended behaviour
 		public static bool Instantiated { get; private set; }
-
-
-		/// <summary>
-		/// Returns existing singleton instance or creates new if there isn't any existing yet
-		/// </summary>
-		/// <exception cref="Exceptions.UnableToResolveException">Thrown when factory method is unable to find or create singleton instance.</exception>
-		public static T GetInstance()
-		{
-			if (!Instantiated && !ApplicationInfo.IsQuiting)
-			{
-				_instance = FactoryMethod();
-				Instantiated = true;
-			}
-
-			return _instance;
-		}
 
 
 		private void Awake()
@@ -65,12 +53,28 @@ namespace SiegfriedWagner.Singletons
 
 		private void OnValidate()
 		{
-			if (Application.isPlaying)
-				return;
-			var siblings = FindObjectsOfType<T>();
-			if (siblings.Length > 1)
-				Debug.LogError($"More than one instance of {typeof(SingletonMonoBehaviour<T>)} present in scene");
+			UnitySingletonHelper.ValidateSingleton<T>();
 			InheritorOnValidate();
+		}
+
+
+		/// <summary>
+		///     Returns existing singleton instance.
+		///     If no singleton instances is register at the beginning of this method call then factory method is used
+		///     to resolve proper instance.
+		/// </summary>
+		/// <exception cref="Exceptions.UnableToResolveException">
+		///     Thrown when factory method is unable to find or create singleton instance.
+		/// </exception>
+		public static T GetInstance()
+		{
+			if (!Instantiated && !ApplicationInfo.IsQuiting)
+			{
+				_instance = FactoryMethod();
+				Instantiated = true;
+			}
+
+			return _instance;
 		}
 
 		/// <summary>
@@ -81,7 +85,8 @@ namespace SiegfriedWagner.Singletons
 		}
 
 		/// <summary>
-		///     Called in OnDestroy when objects InheritorAwake was called before.
+		///     Called in OnDestroy.
+		///     Always called once in object lifetime and called only if complementary call to InheritorAwake was invoked.
 		/// </summary>
 		protected virtual void InheritorOnDestroy()
 		{
