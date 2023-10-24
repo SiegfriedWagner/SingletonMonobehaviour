@@ -98,7 +98,7 @@ namespace SiegfriedWagner.Singletons
 				instance = FactoryMethod();
 				if (switchScene)
 					SceneManager.SetActiveScene(activeScene);
-				SceneScopedSingletons.Add(scene, instance);
+				SceneScopedSingletons.TryAdd(scene, instance);
 			}
 
 			return instance;

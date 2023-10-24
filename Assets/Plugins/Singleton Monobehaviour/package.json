@@ -1,6 +1,6 @@
 ﻿{
   "name": "com.siegfriedwagner.singletons",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Singleton MonoBehaviours",
   "description": "Package with various implementations of singleton patter.",
   "unity": "2021.3",
